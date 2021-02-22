@@ -56,36 +56,29 @@ process split_vcf_to_chrm {
 
 process phase_vcf_chrm {
     tag "phase_${base}_${chrm}"
+    label "medium"
     
     input:
-    tuple dataset, file(dataset_vcf_chrm), ref_name, ref_vcf, chrm, file(eagle_genetic_map)
+        tuple val(dataset), file(dataset_vcf_chrm), val(ref_name), file(ref_vcf), chrm, file(eagle_genetic_map)
     
     output:
-    tuple dataset, file("${phased_vcf_file}.vcf.gz"), ref_name, ref_vcf, chrm, file(eagle_genetic_map)
+        tuple val(dataset), file("${phased_vcf_file}.vcf.gz"), val(ref_name), file(ref_vcf), val(chrm), file(eagle_genetic_map)
     
     script:
-    base = file(dataset_vcf_chrm.baseName).baseName
-    phased_vcf_file = "${base}_phased"
-    """
-    nblines=\$(zcat ${dataset_vcf_chrm} | grep -v '^#' | wc -l)
-    if (( \$nblines > 0 ))
-    then
+        base = file(dataset_vcf_chrm.baseName).baseName
+        phased_vcf_file = "${base}_phased"
+        """
         tabix -f ${dataset_vcf_chrm}
         tabix -f ${ref_vcf}
         eagle \
+            --numThreads=${task.cpus} \
             --vcfTarget=${dataset_vcf_chrm} \
             --geneticMapFile=${eagle_genetic_map} \
             --vcfRef=${ref_vcf} \
             --vcfOutFormat=z \
             --chrom=${chrm} \
             --outPrefix=${phased_vcf_file} 2>&1 | tee ${phased_vcf_file}.log
-        if [ ! -f "${phased_vcf_file}.vcf.gz" ]; then
-            touch ${phased_vcf_file}.vcf && bgzip -f ${phased_vcf_file}.vcf
-        fi
-    else
-        touch ${phased_vcf_file}.vcf && bgzip -f ${phased_vcf_file}.vcf
-    fi
-    """
+        """
 }
 
 
