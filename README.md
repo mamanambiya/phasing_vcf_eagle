@@ -35,4 +35,4 @@ It comes with singularity containers making installation trivial and results hig
 
 
 ### How to run 
-```nextflow run main.nf -profile singularity,test```
+```nextflow run mamanambiya/phasing_vcf_eagle/main.nf -profile singularity,test```
