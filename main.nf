@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.preview.dsl=2
-include check_files from './module/phasing'
-include split_vcf_to_chrm from './module/phasing'
-include phase_vcf_chrm from './module/phasing'
+include { check_files } from './module/phasing'
+include { split_vcf_to_chrm } from './module/phasing'
+include { phase_vcf_chrm } from './module/phasing'
 
 workflow {
     // check if study genotype files exist
